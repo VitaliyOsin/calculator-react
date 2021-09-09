@@ -1,0 +1,19 @@
+.input {
+  border: 1px solid #2f2a2a;
+  border-radius: 7px;
+  height: 60px;
+  padding-right: 15px;
+  padding-top: 10px;
+  text-align: right;
+  font-size: 2.5rem;
+  overflow-x: auto;
+  transition: all 0.2s ease-in-out;
+  background: #383839;
+  color: #ccc;
+}
+
+.input:hover {
+  border: 1px solid #555;
+  -webkit-box-shadow: inset 0px 1px 4px 0px rgba(158, 154, 154, 0.2);
+  box-shadow: inset 0px 1px 4px 0px rgba(116, 114, 114, 0.2);
+}
