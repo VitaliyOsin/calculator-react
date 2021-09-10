@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import Calculator from "./components/calculator";
-import { calc } from "./utils";
+import { calc, cutter } from "./utils";
 import { opers } from "./utils/lists.js";
 
 function App() {
@@ -35,7 +35,7 @@ function App() {
         setCommaFlag(false);
       }
     } else {
-      if (input === "0" || startAgain) {
+      if (input === "0" || input === "" || startAgain) {
         inputHandler(target.textContent);
         setStartAgain(false);
       } else {
@@ -44,32 +44,64 @@ function App() {
     }
   };
 
-  const onOpBtn = (e) => {
-    const { target } = e;
-    setSignFlag(false);
-    setCommaFlag(false);
-    setStartAgain(false);
-    if (signFlag) {
-      inputHandler(input + target.dataset.sign);
-      setSign(target.dataset.sign);
-    }
-  };
+  const onOpBtn = useCallback(
+    (key) => {
+      if (input === "0" || input === "") {
+        if (key === "-") {
+          inputHandler(key);
+        }
+      } else if (input === "-") {
+        if (key === "-") {
+          inputHandler("0");
+        }
+      } else {
+        if (signFlag) {
+          inputHandler(input + key);
+          setSign(key);
+          setSignFlag(false);
+        } else {
+          if (input.slice(input.length - 1) === "-" && key === "-") {
+            inputHandler(`${input.slice(0, input.length - 1)}+`);
+            setSign("+");
+            setSignFlag(false);
+          } else if (
+            opers.find((v) => v.value === input[input.length - 1]) &&
+            key === "-"
+          ) {
+            inputHandler(`${input}${key}`);
+          }
+        }
+      }
+
+      setCommaFlag(false);
+      setStartAgain(false);
+    },
+    [input, signFlag]
+  );
 
   const equalHandler = useCallback(() => {
     try {
       let arr;
+      let inp = input;
+      let s = "";
       if (sign) {
-        arr = input.split(sign);
+        if (input[0] === "-" && sign === "-") {
+          s = "-";
+          inp = input.slice(1);
+        }
+
+        arr = inp.split(sign);
         if (arr[1] === "") arr[1] = arr[0];
         else if (arr[0] === "") arr[0] = "0";
+        arr[0] = `${s}${arr[0]}`;
       } else {
         return;
       }
       const res = calc(arr[0], arr[1], sign);
 
       res
-        ? setInput(res.toString())
-        : setInput(isNaN(res) ? "Ой!" : res.toString());
+        ? setInput(cutter(res.toString()))
+        : setInput(isNaN(res) ? "Ой!" : cutter(res.toString()));
       setCommaFlag(false);
       setSignFlag(true);
       setStartAgain(true);
@@ -83,7 +115,6 @@ function App() {
 
   const handleKeys = useCallback(
     (e) => {
-      console.log(e.key);
       const { key } = e;
       if (Number(key) >= 0 && Number(key) <= 9) {
         if (input === "0" || startAgain) {
@@ -93,22 +124,13 @@ function App() {
           inputHandler(input + key);
         }
       } else if (opers.find((v) => v.value === key)) {
-        setSignFlag(false);
-        //setCommaFlag(true);
-        setStartAgain(false);
-        if (signFlag) {
-          inputHandler(input + key);
-          setSign(key);
-        }
+        onOpBtn(key);
       } else if (key === "Enter" || key === "=") {
         equalHandler();
       } else if (key === "Delete") {
         resetHandler();
       } else if (key === "Backspace") {
-        //console.log("SPLIT: ", input.split(""));
-        console.log("SPLIT1: ", input);
         setInput((prev) => {
-          console.log("PREV: ", prev);
           prev = prev.split("");
           prev.pop();
           return prev.join("");
@@ -119,7 +141,7 @@ function App() {
         }
       }
     },
-    [input, commaFlag, equalHandler, signFlag, startAgain]
+    [input, commaFlag, equalHandler, startAgain, onOpBtn]
   );
 
   useEffect(() => {

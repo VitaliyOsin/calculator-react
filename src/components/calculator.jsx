@@ -2,6 +2,7 @@ import React from "react";
 import Input from "./input/input";
 import LeftPanel from "./left-panel/left-panel";
 import Operators from "./operators";
+import PropTypes from "prop-types";
 import "./calculator.css";
 
 const Calculator = ({ input, equalHandler, onBtn, onOpBtn }) => {
@@ -19,6 +20,13 @@ const Calculator = ({ input, equalHandler, onBtn, onOpBtn }) => {
       </div>
     </div>
   );
+};
+
+Calculator.propTypes = {
+  input: PropTypes.string.isRequired,
+  equalHandler: PropTypes.func.isRequired,
+  onBtn: PropTypes.func.isRequired,
+  onOpBtn: PropTypes.func.isRequired,
 };
 
 export default Calculator;

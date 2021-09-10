@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import "./left-panel.css";
 
 const LeftPanel = ({ onBtn }) => {
@@ -31,6 +32,10 @@ const LeftPanel = ({ onBtn }) => {
       ))}
     </div>
   );
+};
+
+LeftPanel.propsTypes = {
+  onBtn: PropTypes.func,
 };
 
 export default LeftPanel;
